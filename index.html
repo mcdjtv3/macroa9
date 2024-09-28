@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz : Démarche Marketing & Définition des Marchés</title>
+    <style>
+        body {
+            font-family: 'Mayan', sans-serif;
+            margin: 0;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+            text-align: center;
+        }
+        .quiz-container, .summary {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-image: url('images/back.jpg.webp');
+            background-size: cover;
+            background-position: center;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+        .choices {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-left: 20%;
+        }
+        .choices li {
+            margin: 8px 0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #FF0000;
+            color: white;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #CC0000;
+        }
+        .summary {
+            display: none;
+        }
+        .summary ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary li {
+            text-align: left;
+            margin-left: 20%;
+            margin-bottom: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .quiz-container, .summary {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .quiz-container, .summary {
+                padding: 10px;
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .question {
+                font-size: 16px;
+            }
+            button {
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 10px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .quiz-container, .summary {
+                max-width: 800px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+<div class="quiz-container" id="quiz-container">
+    <h2>Quiz : TVA et Gestion des Stocks</h2>
+    <div id="question-container">
+        <!-- Les questions seront affichées ici dynamiquement -->
+    </div>
+    <button id="next-button" onclick="nextQuestion()">Suivant</button>
+</div>
+
+<div class="summary" id="summary">
+    <h3>Récapitulatif</h3>
+    <ul id="summary-list">
+        <!-- Le récapitulatif des réponses sera affiché ici -->
+    </ul>
+    <div class="score" id="score"></div>
+    <button onclick="restartQuiz()">Recommencer</button>
+</div>
+
+<script>
+    const quizData = [
+        { question: "Que représentent les ajustements de fin d'exercice ?", choices: ["Des écritures comptables pour corriger des erreurs", "Des écritures effectuées pour garantir que les revenus et charges sont enregistrés dans la bonne période comptable", "Des paiements en retard", "Des ajustements pour diminuer les dettes"], correct: 1 },
+        { question: "Que sont les produits constatés d'avance ?", choices: ["Des revenus déjà encaissés mais non encore réalisés", "Des produits reçus après la période comptable", "Des créances impayées", "Des paiements à recevoir"], correct: 0 },
+        { question: "Que signifie le principe d'indépendance des exercices en comptabilité ?", choices: ["Les dépenses et les revenus doivent être enregistrés lorsqu'ils sont encaissés", "Chaque période comptable doit être traitée séparément, avec enregistrement des revenus et dépenses dans la période où ils sont engagés", "Les ajustements doivent être faits à la fin de chaque année", "Les charges et produits doivent être reportés d'une période à l'autre"], correct: 1 },
+        { question: "Qu'est-ce qu'une charge constatée d’avance ?", choices: ["Une charge enregistrée avant son paiement effectif", "Une charge payée d’avance mais qui concerne une période future", "Une charge reportée à l'année suivante", "Une charge non encore payée à la fin de l'exercice"], correct: 1 },
+        { question: "Quelle est la différence entre les charges à payer et les charges constatées d'avance ?", choices: ["Les charges à payer sont des dettes à court terme, les charges constatées d’avance sont des dettes à long terme", "Les charges à payer sont constatées après le paiement, les charges constatées d’avance avant", "Les charges à payer concernent des services déjà rendus mais non encore payés, tandis que les charges constatées d’avance concernent des paiements anticipés", "Les charges à payer sont des créances, les charges constatées d’avance des dettes"], correct: 2 },
+        { question: "Que signifie comptabiliser un produit à recevoir ?", choices: ["Enregistrer un revenu qui sera perçu à une date future pour un service déjà rendu", "Enregistrer un produit encaissé mais qui concerne une période future", "Enregistrer une dette à recevoir", "Enregistrer un remboursement de TVA"], correct: 0 },
+        { question: "Quand doit-on comptabiliser une charge à payer ?", choices: ["Lors du paiement", "Lors de la réception de la facture", "Lorsqu'un service a été rendu mais que le paiement n'a pas encore été effectué", "Lors de la clôture de l'exercice suivant"], correct: 2 },
+        { question: "Comment les produits à recevoir sont-ils enregistrés dans le bilan ?", choices: ["Comme un actif", "Comme un passif", "Comme une charge", "Comme un produit"], correct: 0 },
+        { question: "Que se passe-t-il si une entreprise oublie de comptabiliser une charge constatée d'avance ?", choices: ["Ses produits seront surestimés", "Ses charges seront surestimées", "Ses actifs seront sous-estimés", "Ses passifs seront sous-estimés"], correct: 2 },
+        { question: "Comment les produits constatés d'avance sont-ils enregistrés dans le bilan ?", choices: ["Comme un passif", "Comme un actif", "Comme une charge", "Comme un produit"], correct: 0 },
+        { question: "Quel est l'impact des ajustements de fin d'exercice sur les états financiers ?", choices: ["Ils n'ont pas d'impact", "Ils assurent que les états financiers reflètent correctement la situation financière de l'entreprise", "Ils réduisent les dettes de l'entreprise", "Ils augmentent les profits"], correct: 1 },
+        { question: "Quelle est la finalité de la comptabilité d'engagement ?", choices: ["Enregistrer les transactions uniquement lorsqu'elles sont payées", "Enregistrer les transactions dès qu'elles sont engagées, indépendamment du paiement", "Enregistrer uniquement les produits encaissés", "Enregistrer uniquement les charges payées"], correct: 1 },
+        { question: "Pourquoi est-il nécessaire de comptabiliser des produits à recevoir ?", choices: ["Pour reporter les revenus à la période suivante", "Pour refléter les revenus déjà gagnés mais non encore encaissés dans la période comptable correcte", "Pour diminuer les charges de l'exercice", "Pour éviter de payer des impôts"], correct: 1 },
+        { question: "Quand doit-on comptabiliser un produit constaté d'avance ?", choices: ["Lorsque le paiement est reçu, mais que le service n'a pas encore été rendu", "Lorsque le produit est encaissé après la clôture de l'exercice", "Lorsque le service est rendu, mais non encore payé", "Lorsque les charges sont payées à l'avance"], correct: 0 },
+        { question: "Que signifie le terme 'charges à payer' ?", choices: ["Des charges payées d'avance pour une période future", "Des charges comptabilisées mais non encore payées à la fin de l'exercice", "Des produits à recevoir", "Des dettes à court terme"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedAnswers = [];
+
+    function loadQuestion() {
+        const container = document.getElementById('question-container');
+        container.innerHTML = '';
+
+        const questionData = quizData[currentQuestionIndex];
+        const questionElem = document.createElement('div');
+        questionElem.className = 'question';
+        questionElem.textContent = questionData.question;
+
+        const choicesElem = document.createElement('ul');
+        choicesElem.className = 'choices';
+
+        questionData.choices.forEach((choice, index) => {
+            const choiceElem = document.createElement('li');
+            const choiceInput = document.createElement('input');
+            choiceInput.type = 'radio';
+            choiceInput.name = 'choice';
+            choiceInput.value = index;
+            choiceInput.id = `choice${index}`;
+            
+            const choiceLabel = document.createElement('label');
+            choiceLabel.htmlFor = `choice${index}`;
+            choiceLabel.textContent = choice;
+
+            choiceElem.appendChild(choiceInput);
+            choiceElem.appendChild(choiceLabel);
+            choicesElem.appendChild(choiceElem);
+        });
+
+        container.appendChild(questionElem);
+        container.appendChild(choicesElem);
+    }
+
+    function nextQuestion() {
+        const selectedChoice = document.querySelector('input[name="choice"]:checked');
+        if (!selectedChoice) {
+            alert("Veuillez sélectionner une réponse !");
+            return;
+        }
+
+        selectedAnswers.push(parseInt(selectedChoice.value));
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showSummary();
+        }
+    }
+
+    function showSummary() {
+        document.getElementById('quiz-container').style.display = 'none';
+        const summary = document.getElementById('summary');
+        summary.style.display = 'block';
+
+        const summaryList = document.getElementById('summary-list');
+        summaryList.innerHTML = '';
+
+        let correctAnswers = 0;
+
+        quizData.forEach((q, index) => {
+            const summaryItem = document.createElement('li');
+            summaryItem.innerHTML = `
+                <strong>${q.question}</strong><br>
+                <div style="text-align: left; margin-left: 20%;">
+                    Votre réponse: ${q.choices[selectedAnswers[index]]} - 
+                    ${selectedAnswers[index] === q.correct ? '<span class="correct">Correct</span>' : '<span class="incorrect">Incorrect</span>'}<br>
+                    Bonne réponse: ${q.choices[q.correct]}
+                </div>
+            `;
+            summaryList.appendChild(summaryItem);
+            if (selectedAnswers[index] === q.correct) {
+                correctAnswers++;
+            }
+        });
+
+        document.getElementById('score').textContent = `Score: ${correctAnswers} / ${quizData.length}`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        document.getElementById('summary').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+
+
+</html>
